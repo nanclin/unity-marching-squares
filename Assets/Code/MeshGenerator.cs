@@ -13,11 +13,21 @@ public class MeshGenerator : MonoBehaviour {
 
     private Sprite[] TileSprites;
 
+    private int[,] Map = new int[,] {
+        { 0, 0, 0, 0, 0, 0 },
+        { 0, 1, 0, 0, 1, 0 },
+        { 0, 1, 1, 0, 1, 0 },
+        { 0, 0, 1, 1, 1, 0 },
+        { 0, 0, 0, 0, 0, 0 },
+    };
+
     void Start() {
-        GenerateGrid(3, 3);
+        GenerateGrid(Map);
     }
 
-    private void GenerateGrid(int rows, int columns) {
+    private void GenerateGrid(int[,] map) {
+        int rows = map.GetLength(0);
+        int columns = map.GetLength(1);
 
         TileSprites = Resources.LoadAll<Sprite>(TileAtlas.name);
 
@@ -29,9 +39,20 @@ public class MeshGenerator : MonoBehaviour {
 
         int vertexIndex = 0;
         int triangleIndex = 0;
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < columns; c++) {
-                AddMSTile(new Vector3(c, r), 1, 1, Random.Range(0, 16), ref vertexIndex, ref triangleIndex);
+        for (int r = 0; r < rows - 1; r++) {
+            for (int c = 0; c < columns - 1; c++) {
+                float tileSize = 1;
+                Vector3 pos = new Vector3(c, r) + (Vector3) Vector2.one * tileSize * 0.5f;
+
+                // calculate id from neighbours
+                float treshold = 1;
+                int c0 = (map[r + 0, c + 0] >= treshold) ? 1 : 0;
+                int c1 = (map[r + 0, c + 1] >= treshold) ? 2 : 0;
+                int c2 = (map[r + 1, c + 0] >= treshold) ? 8 : 0;
+                int c3 = (map[r + 1, c + 1] >= treshold) ? 4 : 0;
+                int id = c0 + c1 + c2 + c3;
+
+                AddMSTile(pos, tileSize, id, ref vertexIndex, ref triangleIndex);
             }
         }
 
@@ -40,13 +61,13 @@ public class MeshGenerator : MonoBehaviour {
         MeshFilter.mesh.uv = UVs;
     }
 
-    private void AddMSTile(Vector3 pos, float width, float height, int id, ref int vertexIndex, ref int triangleIndex) {
+    private void AddMSTile(Vector3 pos, float tileSize, int id, ref int vertexIndex, ref int triangleIndex) {
 
         // vertices
         Vertices[vertexIndex + 0] = pos;
-        Vertices[vertexIndex + 1] = pos + new Vector3(width, 0, 0);
-        Vertices[vertexIndex + 2] = pos + new Vector3(0, height, 0);
-        Vertices[vertexIndex + 3] = pos + new Vector3(width, height, 0);
+        Vertices[vertexIndex + 1] = pos + (Vector3) Vector2.right * tileSize;
+        Vertices[vertexIndex + 2] = pos + (Vector3) Vector2.up * tileSize;
+        Vertices[vertexIndex + 3] = pos + (Vector3) Vector2.one * tileSize;
 
         // uvs
         List<Vector2> uvs = GetMSTileUVs(id);
