@@ -14,11 +14,10 @@ public class MeshGenerator : MonoBehaviour {
     private Sprite[] TileSprites;
 
     private int[,] Map = new int[,] {
-        { 0, 0, 0, 0, 0, 0 },
-        { 0, 1, 0, 0, 1, 0 },
-        { 0, 1, 1, 0, 1, 0 },
-        { 0, 0, 1, 1, 1, 0 },
-        { 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, },
+        { 0, 1, 1, 0, },
+        { 0, 0, 1, 0, },
+        { 0, 0, 0, 0, },
     };
 
     void Start() {
@@ -46,10 +45,10 @@ public class MeshGenerator : MonoBehaviour {
 
                 // calculate id from neighbours
                 float treshold = 1;
-                int c0 = (map[r + 0, c + 0] >= treshold) ? 1 : 0;
-                int c1 = (map[r + 0, c + 1] >= treshold) ? 2 : 0;
-                int c2 = (map[r + 1, c + 0] >= treshold) ? 8 : 0;
-                int c3 = (map[r + 1, c + 1] >= treshold) ? 4 : 0;
+                int c0 = (map[rows - 1 - r - 0, c + 0] >= treshold) ? 1 : 0;
+                int c1 = (map[rows - 1 - r - 0, c + 1] >= treshold) ? 2 : 0;
+                int c2 = (map[rows - 1 - r - 1, c + 0] >= treshold) ? 8 : 0;
+                int c3 = (map[rows - 1 - r - 1, c + 1] >= treshold) ? 4 : 0;
                 int id = c0 + c1 + c2 + c3;
 
                 AddMSTile(pos, tileSize, id, ref vertexIndex, ref triangleIndex);
