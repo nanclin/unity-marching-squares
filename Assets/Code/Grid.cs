@@ -5,18 +5,18 @@ public class Grid : MonoBehaviour {
 
     private static int Width = 10;
     private static int Height = 10;
-    private int[,] Map = new int[Height, Width];
+    private float[,] Map = new float[Height, Width];
 
-    // private int[,] Map = new int[,] {
-    //     { 1, 1 },
-    //     { 1, 1 },
-    // };
+    //    private float[,] Map = new float[,] {
+    //        { 2f, 0.45f },
+    //        { 0, 0 },
+    //    };
 
     // Use this for initialization
     void Start() {
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
-                Map[y, x] = Random.value > 0.8f ? 1 : 0;
+                Map[y, x] = Random.value;
             }
         }
     }
@@ -29,7 +29,7 @@ public class Grid : MonoBehaviour {
                 Vector3 pos = new Vector2(c, r);
                 Gizmos.DrawWireCube(pos, Vector3.one);
 //                Handles.Label(pos, string.Format("{0},{1}={2}", x, y, Map[y, x]));
-                Handles.Label(pos, string.Format("{0}", Map[r, c]));
+                Handles.Label(pos, string.Format("{0}", Map[r, c].ToString("F2")));
             }
         }
 
@@ -52,12 +52,18 @@ public class Grid : MonoBehaviour {
                 Vector2 v2 = new Vector2(c + 1, r + 1);
                 Vector2 v3 = new Vector2(c + 0, r + 1);
 
-                Vector2 eB = (v0 + v1) * 0.5f;
-                Vector2 eR = (v1 + v2) * 0.5f;
-                Vector2 eT = (v2 + v3) * 0.5f;
-                Vector2 eL = (v3 + v0) * 0.5f;
+                float treshold = 0.5f;
 
-                float treshold = 0;
+                float t0 = Mathf.InverseLerp(c0, c1, treshold);
+                float t1 = Mathf.InverseLerp(c1, c2, treshold);
+                float t2 = Mathf.InverseLerp(c2, c3, treshold);
+                float t3 = Mathf.InverseLerp(c3, c0, treshold);
+
+                Vector2 eB = Vector2.Lerp(v0, v1, t0);
+                Vector2 eR = Vector2.Lerp(v1, v2, t1);
+                Vector2 eT = Vector2.Lerp(v2, v3, t2);
+                Vector2 eL = Vector2.Lerp(v3, v0, t3);
+
                 int id =
                     (c0 > treshold ? 1 : 0) * 1 +
                     (c1 > treshold ? 1 : 0) * 2 +
