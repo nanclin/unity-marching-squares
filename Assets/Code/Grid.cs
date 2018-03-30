@@ -6,9 +6,12 @@ public class Grid : MonoBehaviour {
     public Camera Camera;
 
     [Range(0, 1)] public float Treshold = 0.5f;
+    [Range(0, 5)] public float Radius = 1;
+    [Range(0, 1)] public float Flow = 0.05f;
+    public float Decay = 0.1f;
 
-    private static int Width = 10;
-    private static int Height = 10;
+    private static int Width = 50;
+    private static int Height = 50;
     private float[,] Map = new float[Height, Width];
     private GUIStyle style = new GUIStyle();
 
@@ -27,22 +30,47 @@ public class Grid : MonoBehaviour {
     }
 
     void Update() {
-        if (Input.GetMouseButton(0)) {
-            Vector2 pos = Camera.ScreenToWorldPoint(Input.mousePosition);
-            int r = Mathf.FloorToInt(pos.y);
-            int c = Mathf.FloorToInt(pos.x);
-
-            // is in range
-            if (r < 0 || r > Height - 1 || c < 0 || c > Width - 1)
-                return;
-
-            // paint in current tile
-            int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
-            Map[r, c] = Mathf.Clamp01(Map[r, c] + 0.1f * dir);
+        if (Input.GetKeyDown(KeyCode.Plus)) {
+            Radius += 0.1f;
+        }
+        if (Input.GetKeyDown(KeyCode.Minus)) {
+            Radius -= 0.1f;
         }
     }
 
     void OnDrawGizmos() {
+
+        Vector2 mousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
+        int x = Mathf.FloorToInt(mousePos.x);
+        int y = Mathf.FloorToInt(mousePos.y);
+
+        // draw brush radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(new Vector2(x, y) + Vector2.one * 0.5f, Vector3.one * 0.3f);
+        Gizmos.DrawWireSphere(mousePos, Radius);
+
+        for (int r = 0; r < Height; r++) {
+            for (int c = 0; c < Width; c++) {
+                Vector2 coord = new Vector2(c, r) + Vector2.one * 0.5f;
+                float dist = (coord - mousePos).magnitude;
+
+                float distNormalized = 1 - dist / Radius;
+                float flow = Mathf.Clamp01(distNormalized) * Flow;
+
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireCube(new Vector2(c, r) + Vector2.one * 0.5f, Vector3.one * flow);
+
+                if (Input.GetMouseButton(0)) {
+                    int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
+                    Map[r, c] = Mathf.Clamp(Map[r, c] + flow * dir, 0, 3);
+                }
+
+                Map[r, c] -= Decay / 60; // per second
+            }
+        }
+
+
+        // draw base grid
         style.fontSize = 5;
         Gizmos.color = Color.gray;
         Handles.color = Color.gray;
@@ -51,10 +79,11 @@ public class Grid : MonoBehaviour {
                 Vector3 pos = new Vector2(c, r) + Vector2.one * 0.5f;
                 Gizmos.DrawWireCube(pos, Vector3.one);
 //                Handles.Label(pos, string.Format("{0},{1}={2}", x, y, Map[y, x]));
-                Handles.Label(pos, string.Format("{0}", Map[r, c].ToString("F2")), style);
+//                Handles.Label(pos, string.Format("{0}", Map[r, c].ToString("F2")), style);
             }
         }
 
+        // draw marching squares
         Handles.color = Color.white;
         for (int r = 0; r < Height - 1; r++) {
             for (int c = 0; c < Width - 1; c++) {
@@ -90,7 +119,7 @@ public class Grid : MonoBehaviour {
                     (c2 > Treshold ? 1 : 0) * 4 +
                     (c3 > Treshold ? 1 : 0) * 8;
 
-                Gizmos.color = Color.green;
+                Gizmos.color = Color.green * (c0 + c1 + c2 + c3) * 0.25f;
                 if (id == 1) {
                     Gizmos.DrawLine(v0, eL);
                     Gizmos.DrawLine(eL, eB);
