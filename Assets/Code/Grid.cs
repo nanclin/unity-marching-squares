@@ -4,6 +4,7 @@ using UnityEditor;
 public class Grid : MonoBehaviour {
 
     public Camera Camera;
+    public Renderer Renderer;
 
     [Range(0, 1)] public float Treshold = 0.5f;
     [Range(0, 5)] public float Radius = 1;
@@ -13,6 +14,9 @@ public class Grid : MonoBehaviour {
     private static int Width = 50;
     private static int Height = 50;
     private float[,] Map = new float[Height, Width];
+    private Texture2D DebugTexture;
+    private Color[] ColorArray;
+
     private GUIStyle style = new GUIStyle();
 
     //    private float[,] Map = new float[,] {
@@ -22,6 +26,14 @@ public class Grid : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+
+        // init debug texture
+        DebugTexture = new Texture2D(Width, Height);
+        DebugTexture.filterMode = FilterMode.Point;
+        Renderer.material.mainTexture = DebugTexture;
+        ColorArray = new Color[Width * Height];
+
+        // init map with random noise
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 Map[y, x] = Random.value;
@@ -36,6 +48,21 @@ public class Grid : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Minus)) {
             Radius -= 0.1f;
         }
+
+        for (int r = 0; r < Height; r++) {
+            for (int c = 0; c < Width; c++) {
+                // decay values
+                Map[r, c] -= Decay / 60; // per second
+
+                // write map to the texture
+                int i = r * Width + c;
+                ColorArray[i] = Color.Lerp(Color.black, Color.white, Map[r, c]);
+            }
+        }
+
+        // apply and upload pixels to the texture
+        DebugTexture.SetPixels(ColorArray);
+        DebugTexture.Apply();
     }
 
     void OnDrawGizmos() {
@@ -64,8 +91,6 @@ public class Grid : MonoBehaviour {
                     int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
                     Map[r, c] = Mathf.Clamp(Map[r, c] + flow * dir, 0, 3);
                 }
-
-                Map[r, c] -= Decay / 60; // per second
             }
         }
 
