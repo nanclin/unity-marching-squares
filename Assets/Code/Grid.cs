@@ -5,6 +5,7 @@ public class Grid : MonoBehaviour {
 
     public Camera Camera;
     public Renderer Renderer;
+    public MeshGenerator MeshGenerator;
 
     [Range(0, 1)] public float Treshold = 0.5f;
     [Range(0, 5)] public float Radius = 1;
@@ -36,7 +37,7 @@ public class Grid : MonoBehaviour {
         // init map with random noise
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
-                Map[y, x] = Random.value;
+                Map[y, x] = 0;//Random.value;
             }
         }
     }
@@ -55,10 +56,13 @@ public class Grid : MonoBehaviour {
             ApplyBrush(mousePos);
         }
 
+        // generate mesh
+        MeshGenerator.GenerateGrid(Map, Treshold);
+
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
                 // decay values
-                Map[r, c] -= Decay / 60; // per second
+                Map[r, c] = Mathf.Max(0, Map[r, c] - Decay / 60); // per second
 
                 // write map to the texture
                 int i = r * Width + c;
