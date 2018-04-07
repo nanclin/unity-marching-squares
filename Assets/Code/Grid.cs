@@ -119,7 +119,7 @@ public class Grid : MonoBehaviour {
                     (c2 > Treshold ? 1 : 0) * 4 +
                     (c3 > Treshold ? 1 : 0) * 8;
 
-                Gizmos.color = Color.green * (c0 + c1 + c2 + c3) * 0.25f;
+                Gizmos.color = Color.green;// * (c0 + c1 + c2 + c3) * 0.25f;
                 if (id == 1) {
                     Gizmos.DrawLine(v0, eL);
                     Gizmos.DrawLine(eL, eB);
