@@ -49,6 +49,12 @@ public class Grid : MonoBehaviour {
             Radius -= 0.1f;
         }
 
+        // apply brush
+        if (Input.GetMouseButton(0)) {
+            Vector2 mousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
+            ApplyBrush(mousePos);
+        }
+
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
                 // decay values
@@ -65,35 +71,45 @@ public class Grid : MonoBehaviour {
         DebugTexture.Apply();
     }
 
-    void OnDrawGizmos() {
-
-        Vector2 mousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
-        int x = Mathf.FloorToInt(mousePos.x);
-        int y = Mathf.FloorToInt(mousePos.y);
-
-        // draw brush radius
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(new Vector2(x, y) + Vector2.one * 0.5f, Vector3.one * 0.3f);
-        Gizmos.DrawWireSphere(mousePos, Radius);
-
+    void ApplyBrush(Vector2 pos) {
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
                 Vector2 coord = new Vector2(c, r) + Vector2.one * 0.5f;
-                float dist = (coord - mousePos).magnitude;
+                float dist = (coord - pos).magnitude;
+                if (dist > Radius) continue;
 
                 float distNormalized = 1 - dist / Radius;
                 float flow = Mathf.Clamp01(distNormalized) * Flow;
 
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(new Vector2(c, r) + Vector2.one * 0.5f, Vector3.one * flow);
+                int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
+                Map[r, c] = Map[r, c] + flow * dir;
+            }
+        }
+    }
 
-                if (Input.GetMouseButton(0)) {
-                    int dir = Input.GetKey(KeyCode.LeftControl) ? -1 : 1;
-                    Map[r, c] = Mathf.Clamp(Map[r, c] + flow * dir, 0, 3);
+    void OnDrawGizmos() {
+        { // draw brush debug
+            Vector2 mousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
+            int x = Mathf.FloorToInt(mousePos.x);
+            int y = Mathf.FloorToInt(mousePos.y);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(new Vector2(x, y) + Vector2.one * 0.5f, Vector3.one * 0.3f);
+            Gizmos.DrawWireSphere(mousePos, Radius);
+
+            for (int r = 0; r < Height; r++) {
+                for (int c = 0; c < Width; c++) {
+                    Vector2 coord = new Vector2(c, r) + Vector2.one * 0.5f;
+                    float dist = (coord - mousePos).magnitude;
+
+                    float distNormalized = 1 - dist / Radius;
+                    float flow = Mathf.Clamp01(distNormalized) * Flow;
+
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawWireCube(new Vector2(c, r) + Vector2.one * 0.5f, Vector3.one * flow);
                 }
             }
         }
-
 
         // draw base grid
         style.fontSize = 5;
