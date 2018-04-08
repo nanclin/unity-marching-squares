@@ -7,8 +7,10 @@ public class Grid : MonoBehaviour {
     public Renderer Renderer;
     public MeshGenerator MeshGenerator;
     public MeshGeneratorLerpMS MeshGeneratorFloatMap;
+    public MeshGeneratorLerpMS MeshGeneratorFloatMap2;
 
     [Range(0, 1)] public float Treshold = 0.5f;
+    [Range(0, 1)] public float Treshold2 = 0.5f;
     [Range(0, 5)] public float Radius = 1;
     [Range(0, 1)] public float Flow = 0.05f;
     public float Decay = 0.1f;
@@ -59,6 +61,7 @@ public class Grid : MonoBehaviour {
 
         // generate mesh
         MeshGeneratorFloatMap.GenerateGrid(Map, Treshold);
+        MeshGeneratorFloatMap2.GenerateGrid(Map, Treshold2);
 
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
