@@ -73,8 +73,7 @@ public class MeshGeneratorLerpMS : MonoBehaviour {
                     case 8:
                         AddTriangle(v3, eT, eL);
                         break;
-                    // 2 triangles
-                        break;
+                // 2 triangles
                     case 3:
                         AddTriangle(v0, eL, v1);
                         AddTriangle(eL, eR, v1);
@@ -95,7 +94,7 @@ public class MeshGeneratorLerpMS : MonoBehaviour {
                         AddTriangle(v0, v3, v2);
                         AddTriangle(v0, v2, v1);
                         break;
-                    // 3 triangles
+                // 3 triangles
                     case 7:
                         AddTriangle(v0, eL, eT);
                         AddTriangle(v0, eT, v2);
@@ -116,7 +115,7 @@ public class MeshGeneratorLerpMS : MonoBehaviour {
                         AddTriangle(eL, v2, v1);
                         AddTriangle(eL, v1, eB);
                         break;
-                    // 4 triangles
+                // 4 triangles
                     case 5:
                         AddTriangle(v0, eL, eT);
                         AddTriangle(v0, eT, v2);
