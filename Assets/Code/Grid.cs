@@ -1,30 +1,27 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEditor;
 
 public class Grid : MonoBehaviour {
 
+    public List<Color> Colors;
+    public List<float> Tresholds;
     public Camera Camera;
     public Renderer Renderer;
     public MeshGenerator MeshGenerator;
     public MeshGeneratorLerpMS MeshGeneratorFloatMap;
-    public MeshGeneratorLerpMS MeshGeneratorFloatMap2;
+    public MeshGeneratorLerpMS MeshGeneratorPrefab;
 
-    [Range(0, 1)] public float Treshold = 0.5f;
-    [Range(0, 1)] public float Treshold2 = 0.5f;
     [Range(0, 5)] public float Radius = 1;
     [Range(0, 1)] public float Flow = 0.05f;
     public float Decay = 0.1f;
 
-    private static int Width = 50;
-    private static int Height = 50;
+    private static int Width = 51;
+    private static int Height = 51;
     private float[,] Map = new float[Height, Width];
     private Texture2D DebugTexture;
     private Color[] ColorArray;
-
-    //    private float[,] Map = new float[,] {
-    //        { 2f, 0.45f },
-    //        { 0, 0 },
-    //    };
+    private List<MeshGeneratorLerpMS> Meshes;
 
     // Use this for initialization
     void Start() {
@@ -40,6 +37,16 @@ public class Grid : MonoBehaviour {
             for (int x = 0; x < Width; x++) {
                 Map[y, x] = 0;//Random.value;
             }
+        }
+
+        // instantiate MS meshes
+        Meshes = new List<MeshGeneratorLerpMS>();
+        for (int i = 0; i < Colors.Count; i++) {
+            MeshGeneratorLerpMS mesh = Instantiate(MeshGeneratorPrefab);
+            mesh.name = "mesh_" + i;
+            mesh.gameObject.GetComponent<MeshRenderer>().material.color = Colors[i];
+            mesh.transform.Translate(Vector3.back * i);
+            Meshes.Add(mesh);
         }
     }
 
@@ -58,8 +65,10 @@ public class Grid : MonoBehaviour {
         }
 
         // generate mesh
-        MeshGeneratorFloatMap.GenerateGrid(Map, Treshold);
-        MeshGeneratorFloatMap2.GenerateGrid(Map, Treshold2);
+        for (int i = 0; i < Meshes.Count; i++) {
+            MeshGeneratorLerpMS mesh = Meshes[i];
+            mesh.GenerateGrid(Map, Tresholds[i]);
+        }
 
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
