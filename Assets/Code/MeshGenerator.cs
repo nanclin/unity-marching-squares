@@ -22,7 +22,7 @@ public class MeshGenerator : MonoBehaviour {
 
     void Start() {
         TileSprites = Resources.LoadAll<Sprite>(TileAtlas.name);
-        GenerateGrid(Map, 1);
+//        GenerateGrid(Map, 1);
     }
 
     public void GenerateGrid(float[,] map, float treshold) {

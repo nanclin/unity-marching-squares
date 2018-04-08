@@ -6,6 +6,7 @@ public class Grid : MonoBehaviour {
     public Camera Camera;
     public Renderer Renderer;
     public MeshGenerator MeshGenerator;
+    public MeshGeneratorLerpMS MeshGeneratorFloatMap;
 
     [Range(0, 1)] public float Treshold = 0.5f;
     [Range(0, 5)] public float Radius = 1;
@@ -57,7 +58,7 @@ public class Grid : MonoBehaviour {
         }
 
         // generate mesh
-        MeshGenerator.GenerateGrid(Map, Treshold);
+        MeshGeneratorFloatMap.GenerateGrid(Map, Treshold);
 
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
