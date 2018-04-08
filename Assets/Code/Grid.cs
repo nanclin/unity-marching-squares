@@ -63,7 +63,7 @@ public class Grid : MonoBehaviour {
         for (int r = 0; r < Height; r++) {
             for (int c = 0; c < Width; c++) {
                 // decay values
-                Map[r, c] = Mathf.Max(0, Map[r, c] - Decay / 60); // per second
+                Map[r, c] = Mathf.Max(0, Map[r, c] - Map[r, c] * Decay / 60); // per second
 
                 // write map to the texture
                 int i = r * Width + c;
